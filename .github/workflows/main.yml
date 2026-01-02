@@ -1,27 +1,39 @@
-name: Extract Any ZIP in Root
+name: Extract ZIP and Push
 
-# Allows manual trigger from GitHub Actions UI
+# Manual trigger
 on:
   workflow_dispatch:
 
 jobs:
-  unzip-job:
+  unzip-and-push:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        # Allow pushing changes
+        persist-credentials: true
 
-    - name: Find and extract ZIP(s) in root
+    - name: Extract ZIP(s) in root
       run: |
+        found=0
         for zipfile in *.zip; do
           if [ -f "$zipfile" ]; then
             echo "Extracting $zipfile..."
             unzip -o "$zipfile"
-          else
-            echo "No ZIP files found in root."
+            found=1
           fi
         done
+        if [ $found -eq 0 ]; then
+          echo "No ZIP files found in root."
+        fi
 
-    - name: List extracted files
-      run: ls -la
+    - name: Commit and push extracted files
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git diff --cached --quiet || \
+        git commit -m "Extracted ZIP files"
+        git push
