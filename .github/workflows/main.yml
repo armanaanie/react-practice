@@ -1,0 +1,17 @@
+name: Extract ZIP in Repo Root
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  unzip-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Extract ZIP directly in root
+      run: unzip -o archive.zip
