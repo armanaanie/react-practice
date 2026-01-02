@@ -1,9 +1,8 @@
-name: Extract ZIP in Repo Root
+name: Extract Any ZIP in Root
 
+# Allows manual trigger from GitHub Actions UI
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   unzip-job:
@@ -13,5 +12,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Extract ZIP directly in root
-      run: unzip -o archive.zip
+    - name: Find and extract ZIP(s) in root
+      run: |
+        for zipfile in *.zip; do
+          if [ -f "$zipfile" ]; then
+            echo "Extracting $zipfile..."
+            unzip -o "$zipfile"
+          else
+            echo "No ZIP files found in root."
+          fi
+        done
+
+    - name: List extracted files
+      run: ls -la
